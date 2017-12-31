@@ -1,10 +1,12 @@
 var roleRanger = {
     run: function(creep) {
+        
         var target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
         var structure = creep.room.find(FIND_HOSTILE_STRUCTURES);
-        if(target) { 
+        if(target) {
             creep.moveTo(target);
-            if(creep.rangedAttack(target) == ERR_NOT_IN_RANGE) {
+            if(creep.rangedAttack(target) == ERR_NOT_IN_RANGE && creep.hits < creep.hitsMax)
+            {
                 creep.heal(creep);
             }
         }
@@ -12,9 +14,9 @@ var roleRanger = {
         {
             if(creep.hits < creep.hitsMax)
             {
-                creep.heal(creep);
+                creep.heal(creep);   
             }
-            creep.moveTo(Game.flags.Attack);
+            creep.moveTo(Game.flags.Scout);
         }
     }
 };

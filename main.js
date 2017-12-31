@@ -3,86 +3,145 @@ var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 var roleFighter = require('role.fighter');
 var roleTank = require('role.tank');
+var roleRanged = require('role.ranged');
+var roleScout = require('role.scout');
+var roleClaimer = require('role.claimer');
+var roleMobileUpgrader = require('role.mobileUpgrader');
 var advSpawn = require('advSpawn');
 
-module.exports.loop = function () {
+module.exports.loop = function () 
+{
+    
+    var numFighters = 0;
+    var numRangers = 0;
+    var numTanks = 0;
+    var numScouts = 0;
+    var numClaimers = 0;
 
     for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
+        if(!Game.creeps[name]) 
+        {
+            var Home = Memory.creeps[name].home;
+            var Role = Memory.creeps[name].role;
+            if(Memory.rooms[Home])
+            {
+                if(Role == 'harvester')
+                {
+                    Game.rooms[Home].memory.numHarvesters--;
+                }
+                else if(Role == 'upgrader')
+                {
+                    Game.rooms[Home].memory.numUpgraders--;
+                }
+                else if(Role == 'builder')
+                {
+                    Game.rooms[Home].memory.numBuilders--;
+                }
+            }
             delete Memory.creeps[name];
             console.log('Clearing non-existing creep memory:', name);
         }
-    }
+        else
+        {
+            var creep = Game.creeps[name];
+            if(creep.memory.role == 'harvester') {
+                roleHarvester.run(creep);
+            }
     
-    var numHarvesters = 0;
-    var numUpgraders = 0;
-    var numBuilders = 0;
-    var numFighters = 0;
-    var numTanks = 0;
-
-    for(var name in Game.creeps) 
-    {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-            numHarvesters++;
-        }
-
-        else if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-            numUpgraders++;
-        }
-
-        else if(creep.memory.role == 'builder'){
-            roleBuilder.run(creep);
-            numBuilders++;
-        }
-        
-        if(Game.flags.SiegePhase2)
-        {
-            if(creep.memory.role == 'fighter')
-            {
-                roleFighter.run(creep);
-                numFighters++;
+            else if(creep.memory.role == 'upgrader') {
+                roleUpgrader.run(creep);
             }
-        }
-        else if(Game.flags.SiegePhase1)
-        {
-            if(creep.memory.role == 'tank')
+    
+            else if(creep.memory.role == 'builder'){
+                roleBuilder.run(creep);
+            }
+            else if(creep.memory.role == 'mobileUpgrader')
             {
-                roleTank.run(creep);
-                numTanks++;
+                roleMobileUpgrader.run(creep);
+            }
+            
+            if(Game.flags.SiegePhase2)
+            {
+                if(creep.memory.role == 'fighter')
+                {
+                    roleFighter.run(creep);
+                    numFighters++;
+                }
+                else if(creep.memory.role == 'ranger')
+                {
+                    roleRanged.run(creep);
+                    numRangers++;
+                }
+            }
+            else if(Game.flags.SiegePhase1)
+            {
+                if(creep.memory.role == 'tank')
+                {
+                    roleTank.run(creep);
+                    numTanks++;
+                }
+            }
+            if(Game.flags.Scout && creep.memory.role == 'scout')
+            {
+                roleScout.run(creep);
+                numScouts++;
+            }
+            if(Game.flags.Claim && creep.memory.role == 'claimer')
+            {
+                roleClaimer.run(creep);
+                numClaimers++;
             }
         }
     }
+
     var newName;
-    if(numHarvesters == 0)
-    {
-        newName = 'Harvester' + Game.time;
-        advSpawn.worker(Game.spawns['Spawn1'], newName, 'harvester');
-    }
-    else if(numBuilders == 0)
-    {
-        newName = 'Builder' + Game.time;
-        advSpawn.worker(Game.spawns['Spawn1'], newName, 'builder');
-    }
-    else if(numUpgraders == 0)
-    {
-        newName = 'Upgrader' + Game.time;
-        advSpawn.worker(Game.spawns['Spawn1'], newName, 'upgrader');
-    }
     
-    else if(Game.flags.SiegePhase2 && numFighters < 1 && Game.spawns['Spawn1'].energyCapacity == Game.spawns['Spawn1'].energy)
+    for(var name in Memory.rooms)
     {
-        newName = 'Fighter' + Game.time;
-        advSpawn.melee(Game.spawns['Spawn1'], newName, 'fighter');
+        if(Memory.rooms[name].numHarvesters < 1)
+        {
+            newName = 'Harvester' + name + Memory.rooms[name].numHarvesters + 1;
+            advSpawn.worker(Game.spawns['Spawn1'], newName, 'harvester', name);
+        }
+        else if(Memory.rooms[name].numUpgraders < 1)
+        {
+            newName = 'Upgrader' + name + Memory.rooms[name].numUpgraders + 1;
+            advSpawn.worker(Game.spawns['Spawn1'], newName, 'upgrader', name);
+        }
+        else if(Memory.rooms[name].numBuilders < 1)
+        {
+            newName = 'Builder' + name + Memory.rooms[name].numBuilders + 1;
+            advSpawn.worker(Game.spawns['Spawn1'], newName, 'builder', name);
+        }
+    }
+
+
+    
+    if(Game.flags.SiegePhase2 && numRangers < 1 && Game.spawns['Spawn1'].energyCapacity == Game.spawns['Spawn1'].energy)
+    {
+        newName = 'Ranger' + Game.time;
+        advSpawn.ranged(Game.spawns['Spawn1'], newName, 'ranger', Game.spawns['Spawn1'].room);
     }
     else if(Game.flags.SiegePhase1 && Game.spawns['Spawn1'].energyCapacity == Game.spawns['Spawn1'].energy)
     {
+        newName = 'Fighter' + Game.time;
         if(numTanks < 1)
         {
-            advSpawn.tank(Game.spawns['Spawn1'], newName, 'fighter');
+            advSpawn.tank(Game.spawns['Spawn1'], newName, 'fighter', Game.spawns['Spawn1'].room);
         }
+    }
+    if(Game.flags.Scout && Game.spawns['Spawn1'].energyCapacity == Game.spawns['Spawn1'].energy)
+    {
+        newName = 'Scout' + Game.time;
+        if(numScouts < 1)
+        {
+            advSpawn.ranged(Game.spawns['Spawn1'], newName, 'scout', Game.spawns['Spawn1'].room);
+        }
+    }
+    if(Game.flags.Claim && Game.spawns['Spawn1'].room.energyCapacityAvailable == Game.spawns['Spawn1'].room.energyAvailable && numClaimers < 1)
+    {
+        newName = 'Claimer' + Game.time;
+        advSpawn.claimer(Game.spawns['Spawn1'], newName, 'claimer', Game.spawns['Spawn1'].room);
     }
     
     var tower = Game.getObjectById('5a1cdd499b5f6024f6d1389a')
