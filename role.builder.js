@@ -3,12 +3,13 @@ var roleBuilder = {
 
     run: function(creep) 
     {
-
-	    if(creep.memory.building && creep.carry.energy == 0) {
+	    if(creep.memory.building && creep.carry.energy == 0)
+	    {
             creep.memory.building = false;
 	    }
 
-	    if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
+	    if(!creep.memory.building && creep.carry.energy == creep.carryCapacity)
+	    {
 	        creep.memory.building = true;
 	    }
 
@@ -17,7 +18,7 @@ var roleBuilder = {
 	        var targets = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
             if(targets) {
                 if(creep.build(targets) != -6) {
-                    creep.moveTo(targets, {visualizePathStyle: {stroke: '#ffffff'}});
+                    creep.moveTo(targets);
                 }
             } else {
                 roleHarvester.run(creep);

@@ -26,9 +26,11 @@ var advSpawn =
                 }
             }
         }
+        var test = Spawn.spawnCreep(body, Name, {memory: {role: Role, home: Home}});
         
-        if(Spawn.spawnCreep(body, Name, {memory: {role: Role, home: Home}}) == 0)
+        if(test == 0)
         {
+            
             if(Game.rooms[Home].memory)
             {
                 if(Role == 'harvester')
@@ -123,17 +125,18 @@ var advSpawn =
         while(moveEnergy > 49 && parts < 17)
         {
             body.push(MOVE);
-            toughEnergy -= 10;
+            moveEnergy -= 50;
             parts++;
         }
-        moveEnergy += toughEnergy;
+        healEnergy += moveEnergy;
         while(healEnergy > 249 && parts < 51)
         {
             body.push(HEAL);
             healEnergy -= 250;
             parts++;
         }
-        Spawn.spawnCreep(body, Name, {memory: {role: Role, home: Home}});
+        var test = Spawn.spawnCreep(body, Name, {memory: {role: Role, home: Home}});
+        console.log(test);
     }
     ,
     ranged: function(Spawn, Name, Role, Home)

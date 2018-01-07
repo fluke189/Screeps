@@ -6,8 +6,8 @@ var roleTank = require('role.tank');
 var roleRanged = require('role.ranged');
 var roleScout = require('role.scout');
 var roleClaimer = require('role.claimer');
-var roleMobileUpgrader = require('role.mobileUpgrader');
 var advSpawn = require('advSpawn');
+var roleHealer = require('role.healer');
 
 module.exports.loop = function () 
 {
@@ -15,6 +15,7 @@ module.exports.loop = function ()
     var numFighters = 0;
     var numRangers = 0;
     var numTanks = 0;
+    var numHealers = 0;
     var numScouts = 0;
     var numClaimers = 0;
 
@@ -55,10 +56,6 @@ module.exports.loop = function ()
             else if(creep.memory.role == 'builder'){
                 roleBuilder.run(creep);
             }
-            else if(creep.memory.role == 'mobileUpgrader')
-            {
-                roleMobileUpgrader.run(creep);
-            }
             
             if(Game.flags.SiegePhase2)
             {
@@ -79,6 +76,11 @@ module.exports.loop = function ()
                 {
                     roleTank.run(creep);
                     numTanks++;
+                }
+                if(creep.memory.role == 'healer')
+                {
+                    roleHealer.run(creep)
+                    numHealers++;
                 }
             }
             if(Game.flags.Scout && creep.memory.role == 'scout')
@@ -117,25 +119,32 @@ module.exports.loop = function ()
 
 
     
-    if(Game.flags.SiegePhase2 && numRangers < 1 && Game.spawns['Spawn1'].energyCapacity == Game.spawns['Spawn1'].energy)
+    if(Game.flags.SiegePhase2 && numRangers < 1 && Game.spawns['Spawn1'].room.energyCapacityAvailable == Game.spawns['Spawn1'].room.energyAvailable)
     {
         newName = 'Ranger' + Game.time;
         advSpawn.ranged(Game.spawns['Spawn1'], newName, 'ranger', Game.spawns['Spawn1'].room);
     }
-    else if(Game.flags.SiegePhase1 && Game.spawns['Spawn1'].energyCapacity == Game.spawns['Spawn1'].energy)
+    else if(Game.flags.SiegePhase1 && Game.spawns['Spawn1'].room.energyCapacityAvailable == Game.spawns['Spawn1'].room.energyAvailable)
     {
-        newName = 'Fighter' + Game.time;
+        console.log('here');
+        if(numHealers < 1)
+        {
+            newName = 'Healer' + Game.time;
+            advSpawn.healer(Game.spawns['Spawn1'], newName, 'healer', Game.spawns['Spawn1'].room);
+        }
         if(numTanks < 1)
         {
-            advSpawn.tank(Game.spawns['Spawn1'], newName, 'fighter', Game.spawns['Spawn1'].room);
+            newName = 'Tank' + Game.time;
+            advSpawn.tank(Game.spawns['Spawn1'], newName, 'tank', Game.spawns['Spawn1'].room);
         }
     }
-    if(Game.flags.Scout && Game.spawns['Spawn1'].energyCapacity == Game.spawns['Spawn1'].energy)
+    
+    if(Game.flags.Scout && Game.spawns['Spawn1'].room.energyCapacityAvailable == Game.spawns['Spawn1'].room.energyAvailable)
     {
         newName = 'Scout' + Game.time;
         if(numScouts < 1)
         {
-            advSpawn.ranged(Game.spawns['Spawn1'], newName, 'scout', Game.spawns['Spawn1'].room);
+            advSpawn.ranged(Game.spawns['Spawn1'], newName, 'scout', Game.spawns['Spawn1'].room.name);
         }
     }
     if(Game.flags.Claim && Game.spawns['Spawn1'].room.energyCapacityAvailable == Game.spawns['Spawn1'].room.energyAvailable && numClaimers < 1)
@@ -160,6 +169,21 @@ module.exports.loop = function ()
         }
     }
     var tower = Game.getObjectById('5a2c7edafeb3e018ba1bceed')
+    if(tower) {
+        var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        if(closestHostile) {
+            tower.attack(closestHostile);
+        } else {
+            if(tower.energy > 900){
+                var closestDamagedStructure = tower.room.find(FIND_STRUCTURES, {filter: (s) => s.hits < s.hitsMax * 3/4});
+                if(closestDamagedStructure) {
+                    closestDamagedStructure.sort((a,b) => a.hits - b.hits);
+	 	            tower.repair(closestDamagedStructure[0]);
+                }
+            }
+        }
+    }
+    var tower = Game.getObjectById('5a49d0c2ed9f40288cdf02e0')
     if(tower) {
         var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
         if(closestHostile) {

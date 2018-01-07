@@ -14,7 +14,7 @@ var roleUpgrader = {
 	    if(creep.memory.upgrading) {
 	        var targets = creep.room.controller;
             if(targets) {
-                if(creep.upgradeController(targets) != -6) {
+                if(creep.upgradeController(targets) != 0) {
                     creep.moveTo(targets);
                 }
 	        }
