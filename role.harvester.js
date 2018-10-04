@@ -1,4 +1,5 @@
 var roleUpgrader = require('role.upgrader');
+//var roleBuilder = require('role.builder');
 
 var roleHarvester = {
 
@@ -23,12 +24,17 @@ var roleHarvester = {
                 var targets = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                         filter: (structure) => {
                              return (structure.structureType == STRUCTURE_EXTENSION ||
-                                    structure.structureType == STRUCTURE_SPAWN ||
-                                    structure.structureType == STRUCTURE_STORAGE) 
-                                    && structure.energy < structure.energyCapacity;
+                                    structure.structureType == STRUCTURE_SPAWN) 
+                                    && (structure.energy < structure.energyCapacity);
                         }
                 });
-                if(targets) 
+                
+                if(targets && creep.room.find(FIND_HOSTILE_CREEPS, {
+                        filter: (structure) => 
+                        {
+                            return !Memory.allies.hasOwnProperty(structure.owner.username)
+                        }
+                }).length == 0) 
                 {
                     if(creep.transfer(targets, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(targets);
@@ -50,7 +56,20 @@ var roleHarvester = {
                     }
                     else
                     {
-                        roleUpgrader.run(creep);
+                        if(!creep.memory.isHarvesting)
+                        {
+                	        var construct = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                            if(construct) {
+                                if(creep.build(construct) != -6)
+                                {
+                                    creep.moveTo(construct);
+                                }
+                            } 
+                            else
+                            {
+                                roleUpgrader.run(creep);
+                            }
+                	    }
                     }
                 }
             }

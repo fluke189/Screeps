@@ -13,10 +13,11 @@ var roleUpgrader = {
 
 	    if(creep.memory.upgrading) {
 	        var targets = creep.room.controller;
-            if(targets) {
-                if(creep.upgradeController(targets) != 0) {
-                    creep.moveTo(targets);
-                }
+            if(targets) 
+            {
+                creep.upgradeController(targets);
+                creep.moveTo(targets);
+                creep.signController(targets, "Domain of the Principality of Antioch [PoA]");
 	        }
 	    }
 	    else {

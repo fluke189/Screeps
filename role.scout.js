@@ -12,8 +12,18 @@ var roleScout = {
         
         if(creep.memory.hurt)
         {
-            var target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
-            var structure = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES);
+            var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+                        filter: (structure) => 
+                        {
+                            return !Memory.allies.hasOwnProperty(structure.owner.username)
+                        }
+                });
+            var structure = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+                        filter: (structure) => 
+                        {
+                            return !Memory.allies.hasOwnProperty(structure.owner.username)
+                        }
+                });
             
             if(Game.flags.Heal && creep.room != Game.flags.Heal.room)
             {

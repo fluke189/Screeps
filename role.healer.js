@@ -1,39 +1,55 @@
 var roleHealer = {
     run: function(creep) 
     {
-        targets = creep.room.find(FIND_MY_CREEPS);
+        target = creep.pos.findClosestByPath(FIND_MY_CREEPS, {filter: (s) => s.hits < s.hitsMax });
         
-        if(targets)
-        {
-            //targets.sort(function(a.hits > b.hits);
-        }
         
         if(Game.flags.Heal && creep.room != Game.flags.Heal.room)
         {
-            if(targets)
+            if(target)
             {
                 creep.heal(targets[0]);
             }
-            creep.moveTo(Game.flags.Tank);
-            if(creep.hits < creep.hitsMax)
+            
+            if(creep.memory.hasOwnProperty("checkpoint"))
             {
-                creep.heal(creep);
-            }
-        }
-        else if(targets)
-        {
-            if(targets[0].hitsMax / targets[0].hits < creep.hitsMax / creep.hits)
-            {
-                if(creep.heal(targets[0]) == ERR_NOT_IN_RANGE)
+                checkpoint = "checkpoint" + creep.memory.checkpoint;
+                
+                if(Game.flags[checkpoint])
                 {
-                    creep.moveTo(targets[0]);
+                    if(creep.pos.x == Game.flags[checkpoint].pos.x && creep.pos.y == Game.flags[checkpoint].pos.y)
+                    {
+                        creep.memory.checkpoint++;
+                    }
+                    creep.moveTo(Game.flags[checkpoint]);
                 }
                 else
                 {
-                    creep.heal(creep);
-                    creep.moveTo(targets[0]);
+                    creep.moveTo(Game.flags.Heal);
                 }
             }
+            
+            else if(target)
+            {
+                creep.heal(targets[0]);
+            }
+        }
+        else if(target)
+        {
+            if(creep.heal(target) == ERR_NOT_IN_RANGE)
+            {
+                creep.moveTo(target);
+            }
+        }
+        else if(!target && Game.flags.Heal)
+        {
+            creep.moveTo(Game.flags.Heal);
+        }
+        
+        
+        if(creep.hits < creep.hitsMax)
+        {
+            creep.heal(creep);
         }
     }
 };

@@ -10,9 +10,13 @@ var roleClaimer = {
             if(creep.room.controller)
             {
                 creep.moveTo(creep.room.controller);
-                if(creep.claimController(creep.room.controller) == ERR_INVALID_TARGET) 
+                if(creep.claimController(creep.room.controller) == 0) 
                 {
-                    roleUpgrader.run(creep);
+                    var name = creep.room.name;
+                    Memory.rooms[name] = {};
+                    Memory.rooms[name].numHarvesters = 0;
+                    Memory.rooms[name].numUpgraders = 0;
+                    Memory.rooms[name].numBuilders = 0;
                 }
             }
         }
