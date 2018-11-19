@@ -58,6 +58,19 @@ var roleRaider =
         
         if(!target)
         {
+            walls = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: (structure) => 
+                {
+                    return ((structure.structureType == STRUCTURE_RAMPART && !Memory.allies.hasOwnProperty(structure.owner.username) || structure.structureType == STRUCTURE_WALL))
+                }
+            });
+            
+            if(walls)
+            {
+                target = walls;
+            }
+            
+            /*
             walls = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => 
                 {
@@ -68,8 +81,14 @@ var roleRaider =
             walls.sort((a,b) => a.hits - b.hits);
             numWalls = walls.length;
             var pathToWall;
+            var leastHealth;
+            var distanceToClosest = 100000000;
+            var distanceToCurrent;
             
-            console.log(numWalls);
+            if(numWalls > 0)
+            {
+                leastHealth = walls[0].hits;
+            }
             
             while(!wallFound && i < numWalls)
             {
@@ -77,14 +96,23 @@ var roleRaider =
                 if(pathToWall)
                 {
                     wallFound = true;
+                    
+                    distanceToCurrent = pathToWall.length;
+                    if(distanceToCurrent < distanceToClosest)
+                    {
+                        target = walls[i];
+                        distanceToClosest = distantToCurrent;
+                    }
+                    
                 }
                 else
                 {
                     i++;
                 }
+                target = walls[i];
+                
             }
-            
-            target = walls[i];
+            */
         }
         
         if(creep.hits < creep.hitsMax)
@@ -111,14 +139,12 @@ var roleRaider =
         
         else if(Game.flags.Raid && creep.room == Game.flags.Raid.room)
         {
-            console.log("here");
             if(!target)
             {
                 creep.moveTo(Game.flags.Raid);
             }
             else
             {
-                console.log(target)
                 creep.moveTo(target);
                 if(creep.rangedAttack(target) == -9)
                 {
@@ -140,7 +166,7 @@ var roleRaider =
                     {
                         creep.memory.checkpoint++;
                     }
-                    creep.moveTo(Game.flags[checkpoint]);
+                    creep.moveByPath(creep.pos.findPathTo(Game.flags[checkpoint], {ignoreCreeps: true}));
                 }
                 else
                 {

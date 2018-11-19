@@ -1944,10 +1944,6 @@ var nameGenerator =
                         'Wing',
                         'Wood',
                         'Wright',
-                        'TitFucker',
-                        'FuckWitMe',
-                        'ShitStomper',
-                        'TitFister',
                         ];
 
         var newName = NameList[Game.time * 199 % NameList.length];

@@ -1,6 +1,5 @@
 var runRoles = require('runRoles');
-var towers = require('towers');
-var zergRush = require('zergRush');
+var RoomSecurity = require('RoomSecurity');
 var spawnLogic = require('spawnLogic');
 
 module.exports.loop = function () 
@@ -8,8 +7,7 @@ module.exports.loop = function ()
     //Principality of Antioch
     var roleCount = {};
     
-    towers.run();
-    Memory.ZergRushBeginWave = zergRush.run();
+    RoomSecurity.run();
     runRoles.run(roleCount);
     spawnLogic.run(roleCount);
 }
@@ -30,7 +28,10 @@ module.exports.loop = function ()
         Mineral miner harvesting maybe implemented using remote mining / haulers
         Lab reactions / creep buffing
     }
-    
+    Breaking Walls
+    {
+        Update targeting for walls
+    }
     observers
     {
         create queue of jobs for observers to do related to scouting / pathfinding.
@@ -45,5 +46,13 @@ module.exports.loop = function ()
         {
             see observers
         }
+    }
+    updated default spawn stuff
+    {
+        list of potential default spawns
+        
+        Choose closest
+        
+        if invalid, place a site for rebuild and remove from list
     }
 */

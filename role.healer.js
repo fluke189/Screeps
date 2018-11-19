@@ -8,7 +8,7 @@ var roleHealer = {
         {
             if(target)
             {
-                creep.heal(targets[0]);
+                creep.heal(target);
             }
             
             if(creep.memory.hasOwnProperty("checkpoint"))
@@ -31,15 +31,13 @@ var roleHealer = {
             
             else if(target)
             {
-                creep.heal(targets[0]);
+                creep.heal(target);
             }
         }
         else if(target)
         {
-            if(creep.heal(target) == ERR_NOT_IN_RANGE)
-            {
-                creep.moveTo(target);
-            }
+            creep.heal(target);
+            creep.moveTo(target);
         }
         else if(!target && Game.flags.Heal)
         {

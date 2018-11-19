@@ -35,7 +35,7 @@ var advSpawn =
         }
         if(spawn)
         {
-            test = Spawn.spawnCreep(body, Name, {memory: {role: Role, home: Home, isHarvesting: false, isBuilding: false, path: 0}});
+            test = Spawn.spawnCreep(body, Name, {memory: {role: Role, home: Home, isHarvesting: false, isBuilding: false, checkpoint: 0}});
             
             if(test == 0)
             {
@@ -81,22 +81,23 @@ var advSpawn =
             toughEnergy -= 10;
             parts++;
         }
-        moveEnergy += toughEnergy;
-        while(moveEnergy > 49 && parts < 37)
-        {
-            body.push(MOVE);
-            moveEnergy -= 50;
-            parts++;
-        }
-        attackEnergy += moveEnergy;
-        while(attackEnergy > 79 && parts < 50)
+        attackEnergy += toughEnergy;
+        
+        while(attackEnergy > 79 && parts < 25)
         {
             body.push(ATTACK);
             attackEnergy -= 80;
             parts++;
         }
-        var test = Spawn.spawnCreep(body, Name, {memory: {role: Role, home: Home, path: 0}});
+        while(moveEnergy > 49 && parts < 50)
+        {
+            body.push(MOVE);
+            moveEnergy -= 50;
+            parts++;
+        }
+        moveEnergy += attackEnergy;
         
+        var test = Spawn.spawnCreep(body, Name, {memory: {role: Role, home: Home, checkpoint: 0}});
         return test;
     }
     ,
@@ -170,21 +171,20 @@ var advSpawn =
             parts++;
         }
         moveEnergy += toughEnergy;
-        while(moveEnergy > 49 && parts < 36)
+        while(moveEnergy > 49 && parts < 37)
         {
             body.push(MOVE);
             moveEnergy -= 50;
             parts++;
         }
         attackEnergy += moveEnergy;
-        while(attackEnergy > 149 && parts <48)
+        while(attackEnergy > 149 && parts < 49)
         {
             body.push(RANGED_ATTACK);
             attackEnergy -= 150;
             parts++;
         }
         body.push(HEAL);
-        body.push(MOVE);
         var test = Spawn.spawnCreep(body, Name, {memory: {role: Role, home: Home, checkpoint: 0}});
     }
     ,

@@ -65,20 +65,22 @@ var remoteWorker =
         
         
         	    if(creep.memory.building) {
-        	        var targets = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-                    if(targets) {
-                        if(creep.build(targets) != -6) {
-                            creep.moveTo(targets);
+        	        targets = creep.pos.findClosestByPath(FIND_STRUCTURES, {filter: (s) => s.hits < s.hitsMax * 9/10 && s.structureType != STRUCTURE_WALL});
+                    if(targets) 
+                    {
+                        if(creep.repair(targets) != 0)
+                        {
+                            creep.moveTo(targets);   
                         }
                     }
                     else
                     {
-                        targets = creep.pos.findClosestByPath(FIND_STRUCTURES, {filter: (s) => s.hits < s.hitsMax * 9/10 && s.structureType != STRUCTURE_WALL});
-                        if(targets) 
+                        var targets = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                        if(targets)
                         {
-                            if(creep.repair(targets) != 0)
+                            if(creep.build(targets) != -6)
                             {
-                                creep.moveTo(targets);   
+                                creep.moveTo(targets);
                             }
                         }
                     }

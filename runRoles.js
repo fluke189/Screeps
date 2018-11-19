@@ -10,6 +10,8 @@ var roleZergling = require('role.zergling');
 var roleRaider = require('role.raider');
 var roleRemoteWorker = require('role.remoteWorker');
 var roleHealer = require('role.healer');
+var zergRush = require('zergRush');
+var roleGuard = require('role.guard');
 
 var runRoles =
 {
@@ -27,6 +29,7 @@ var runRoles =
         roleCount.numZerglings = 0;
         roleCount.numRaiders = 0;
         roleCount.numRemoteWorkers = 0;
+        roleCount.numGuards = 0;
         
         
         for(var name in Memory.creeps) {
@@ -89,6 +92,12 @@ var runRoles =
                     roleRanged.run(creep);
                     roleCount.numRangers++;
                 }
+                
+                else if(creep.memory.role == 'guard')
+                {
+                    roleGuard.run(creep);
+                    roleCount.numGuards++;
+                }
                     
                 if(creep.memory.role == 'healer')
                 {
@@ -112,6 +121,8 @@ var runRoles =
                 }
                 if(Game.flags.RallyZergRush && Game.flags.ZergRush && creep.memory.role == 'zergling')
                 {
+                    Memory.ZergRushBeginWave = zergRush.run();
+                    
                     if(Memory.ZergRushBeginWave)
                     {
                         creep.memory.rally = false;
